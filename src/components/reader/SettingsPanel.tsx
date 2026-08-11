@@ -1,4 +1,5 @@
-import { Minus, Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Maximize, Minimize, Minus, Plus } from 'lucide-react'
 import type { ReaderTheme } from '../../lib/themes'
 import { useSettingsStore } from '../../store/useSettingsStore'
 
@@ -10,8 +11,24 @@ interface Props {
 
 export default function SettingsPanel({ open, theme, onClose }: Props) {
   const { fontSize, setFontSize } = useSettingsStore()
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  // Keep the button state in sync even when the user exits via Esc/F11.
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
 
   if (!open) return null
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen()
+    } else {
+      void document.documentElement.requestFullscreen()
+    }
+  }
 
   return (
     <>
@@ -49,6 +66,16 @@ export default function SettingsPanel({ open, theme, onClose }: Props) {
             <Plus size={16} />
           </button>
         </div>
+
+        <button
+          onClick={toggleFullscreen}
+          className="mt-4 flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm transition hover:opacity-70"
+          style={{ borderColor: theme.chrome.border }}
+        >
+          {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+          {isFullscreen ? 'Exit full screen' : 'Full screen'}
+        </button>
+
         <p className="mt-3 text-xs" style={{ color: theme.chrome.subtle }}>
           Theme follows your system setting.
         </p>
