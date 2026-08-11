@@ -33,8 +33,8 @@ npm run build     # outputs to dist/
 npm run preview   # serve the production build locally
 ```
 
-The production build in `dist/` is published to GitHub Pages from the
-`gh-pages` branch.
+Every push to `main` is deployed to GitHub Pages automatically via GitHub
+Actions (see `.github/workflows/deploy.yml`).
 
 ## License
 
