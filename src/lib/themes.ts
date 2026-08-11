@@ -1,34 +1,52 @@
 export interface ReaderTheme {
-  id: string
-  label: string
+  id: 'light' | 'dark'
   /** Colors for the app chrome around the book */
   chrome: { bg: string; text: string; border: string; subtle: string }
-  /** Styles injected into the rendition iframe (!important beats book CSS) */
-  body: { color: string; background: string }
-  swatch: string
+  /** epub.js theme rules: selector -> declarations injected into the book iframe */
+  rules: Record<string, Record<string, string>>
+}
+
+/**
+ * Real EPUBs set explicit colors on their own elements, which always beat an
+ * inherited body color. So a reading theme has to override the common text
+ * elements directly (with !important), not just body. Backgrounds are forced
+ * transparent so white boxes from book CSS don't survive dark mode.
+ */
+const TEXT_SELECTORS = [
+  'p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'li', 'ul', 'ol', 'blockquote', 'pre', 'td', 'th', 'dt', 'dd',
+  'em', 'strong', 'b', 'i', 'u', 'small', 'sup', 'sub',
+  'figcaption', 'caption', 'section', 'article', 'aside',
+  'header', 'footer', 'main', 'label',
+].join(', ')
+
+function themeRules(text: string, bg: string, link: string): Record<string, Record<string, string>> {
+  return {
+    body: {
+      color: `${text} !important`,
+      background: `${bg} !important`,
+    },
+    [TEXT_SELECTORS]: {
+      color: `${text} !important`,
+      'background-color': 'transparent !important',
+      'background-image': 'none !important',
+    },
+    a: {
+      color: `${link} !important`,
+    },
+  }
 }
 
 export const THEMES: ReaderTheme[] = [
   {
     id: 'light',
-    label: 'Light',
     chrome: { bg: '#fafaf9', text: '#1c1917', border: '#e7e5e4', subtle: '#78716c' },
-    body: { color: '#1c1917 !important', background: '#fafaf9 !important' },
-    swatch: '#fafaf9',
-  },
-  {
-    id: 'sepia',
-    label: 'Sepia',
-    chrome: { bg: '#f3ead8', text: '#433422', border: '#e0d3b8', subtle: '#8a7458' },
-    body: { color: '#433422 !important', background: '#f3ead8 !important' },
-    swatch: '#f3ead8',
+    rules: themeRules('#1c1917', '#fafaf9', '#b45309'),
   },
   {
     id: 'dark',
-    label: 'Dark',
     chrome: { bg: '#1c1917', text: '#e7e5e4', border: '#44403c', subtle: '#a8a29e' },
-    body: { color: '#e7e5e4 !important', background: '#1c1917 !important' },
-    swatch: '#1c1917',
+    rules: themeRules('#e7e5e4', '#1c1917', '#f59e0b'),
   },
 ]
 

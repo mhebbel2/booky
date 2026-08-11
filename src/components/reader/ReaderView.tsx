@@ -4,6 +4,7 @@ import ePub, { type Rendition } from 'epubjs'
 import { db, type Book } from '../../lib/db'
 import { THEMES, getTheme } from '../../lib/themes'
 import { useSettingsStore } from '../../store/useSettingsStore'
+import { useSystemTheme } from '../../hooks/useSystemTheme'
 import ReaderToolbar from './ReaderToolbar'
 import TocSidebar, { type TocEntry } from './TocSidebar'
 import SettingsPanel from './SettingsPanel'
@@ -33,7 +34,8 @@ function flattenToc(items: RawTocItem[], depth = 0): TocEntry[] {
 export default function ReaderView() {
   const { bookId } = useParams<{ bookId: string }>()
   const navigate = useNavigate()
-  const { fontSize, themeId, flow } = useSettingsStore()
+  const { fontSize } = useSettingsStore()
+  const themeId = useSystemTheme()
   const theme = getTheme(themeId)
 
   const [record, setRecord] = useState<Book | null>(null)
@@ -46,6 +48,10 @@ export default function ReaderView() {
   const renditionRef = useRef<Rendition | null>(null)
   const cfiRef = useRef<string | null>(null)
   const saveTimer = useRef<number | undefined>(undefined)
+  // Lets the rendition-creation effect read the current theme without
+  // depending on it (theme changes are applied live, without recreation).
+  const themeIdRef = useRef(themeId)
+  themeIdRef.current = themeId
 
   // Load the book record from IndexedDB.
   useEffect(() => {
@@ -83,8 +89,7 @@ export default function ReaderView() {
     return () => window.removeEventListener('keydown', onKey)
   }, [next, prev])
 
-  // Create the epub.js book + rendition. Recreated when the flow changes;
-  // the current position survives via cfiRef.
+  // Create the epub.js book + rendition.
   useEffect(() => {
     if (!record || !viewerRef.current) return
     let cancelled = false
@@ -93,19 +98,16 @@ export default function ReaderView() {
     const rendition = book.renderTo(viewerRef.current, {
       width: '100%',
       height: '100%',
-      flow,
+      flow: 'paginated',
       spread: 'none',
     })
     renditionRef.current = rendition
 
     for (const t of THEMES) {
-      rendition.themes.register(t.id, {
-        body: { color: t.body.color, background: t.body.background },
-      })
+      rendition.themes.register(t.id, t.rules)
     }
-    const settings = useSettingsStore.getState()
-    rendition.themes.select(settings.themeId)
-    rendition.themes.fontSize(`${settings.fontSize}%`)
+    rendition.themes.select(themeIdRef.current)
+    rendition.themes.fontSize(`${useSettingsStore.getState().fontSize}%`)
 
     // epub.js puts the book in an iframe; forward its key events so arrow
     // keys keep working after the user clicks into the text.
@@ -189,7 +191,7 @@ export default function ReaderView() {
       }
       renditionRef.current = null
     }
-  }, [record, flow, next, prev])
+  }, [record, next, prev])
 
   // Live-apply settings without recreating the rendition.
   useEffect(() => {
@@ -234,20 +236,16 @@ export default function ReaderView() {
           <div ref={viewerRef} className="h-full w-full" />
         </div>
 
-        {flow === 'paginated' && (
-          <>
-            <button
-              aria-label="Previous page"
-              onClick={prev}
-              className="absolute inset-y-0 left-0 z-10 w-[15%]"
-            />
-            <button
-              aria-label="Next page"
-              onClick={next}
-              className="absolute inset-y-0 right-0 z-10 w-[15%]"
-            />
-          </>
-        )}
+        <button
+          aria-label="Previous page"
+          onClick={prev}
+          className="absolute inset-y-0 left-0 z-10 w-[15%]"
+        />
+        <button
+          aria-label="Next page"
+          onClick={next}
+          className="absolute inset-y-0 right-0 z-10 w-[15%]"
+        />
 
         <TocSidebar
           toc={toc}
