@@ -14,7 +14,7 @@ export default defineConfig(({ command }) => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg'],
         manifest: {
-          name: 'Booky — EPUB Reader',
+          name: 'Booky',
           short_name: 'Booky',
           description: 'A local-first EPUB reader that works fully offline',
           theme_color: '#1c1917',
