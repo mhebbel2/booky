@@ -20,6 +20,13 @@ const TEXT_SELECTORS = [
   'header', 'footer', 'main', 'label',
 ].join(', ')
 
+/**
+ * Book text renders at the browser default line-height ("normal" ≈ 1.2)
+ * unless the book sets its own. Bumping that by 10% gives 1.32; unitless so
+ * it scales with the font-size setting.
+ */
+const LINE_HEIGHT = '1.32'
+
 function themeRules(text: string, bg: string, link: string): Record<string, Record<string, string>> {
   return {
     body: {
@@ -30,6 +37,7 @@ function themeRules(text: string, bg: string, link: string): Record<string, Reco
       color: `${text} !important`,
       'background-color': 'transparent !important',
       'background-image': 'none !important',
+      'line-height': `${LINE_HEIGHT} !important`,
     },
     a: {
       color: `${link} !important`,
