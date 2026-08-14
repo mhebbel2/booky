@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import ePub, { type Rendition } from 'epubjs'
 import { db, type Book } from '../../lib/db'
 import { THEMES, getTheme } from '../../lib/themes'
-import { useSettingsStore } from '../../store/useSettingsStore'
 import { useSystemTheme } from '../../hooks/useSystemTheme'
 import ReaderToolbar from './ReaderToolbar'
 import TocSidebar, { type TocEntry } from './TocSidebar'
@@ -34,7 +33,6 @@ function flattenToc(items: RawTocItem[], depth = 0): TocEntry[] {
 export default function ReaderView() {
   const { bookId } = useParams<{ bookId: string }>()
   const navigate = useNavigate()
-  const { fontSize } = useSettingsStore()
   const themeId = useSystemTheme()
   const theme = getTheme(themeId)
 
@@ -107,7 +105,6 @@ export default function ReaderView() {
       rendition.themes.register(t.id, t.rules)
     }
     rendition.themes.select(themeIdRef.current)
-    rendition.themes.fontSize(`${useSettingsStore.getState().fontSize}%`)
 
     // epub.js puts the book in an iframe; forward its key events so arrow
     // keys keep working after the user clicks into the text.
@@ -193,13 +190,10 @@ export default function ReaderView() {
     }
   }, [record, next, prev])
 
-  // Live-apply settings without recreating the rendition.
+  // Live-apply the theme without recreating the rendition.
   useEffect(() => {
     renditionRef.current?.themes.select(themeId)
   }, [themeId])
-  useEffect(() => {
-    renditionRef.current?.themes.fontSize(`${fontSize}%`)
-  }, [fontSize])
 
   const goTo = useCallback((href: string) => {
     void renditionRef.current?.display(href)

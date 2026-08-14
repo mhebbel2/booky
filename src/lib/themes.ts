@@ -27,17 +27,29 @@ const TEXT_SELECTORS = [
  */
 const LINE_HEIGHT = '1.32'
 
+/**
+ * Text size is owned by the browser (e.g. Samsung Internet's text-size
+ * setting), which scales text via the text-size-adjust inflation algorithm.
+ * Force "auto" so a book's own CSS can't opt out of it.
+ */
+const TEXT_SIZE_ADJUST: Record<string, string> = {
+  '-webkit-text-size-adjust': 'auto !important',
+  'text-size-adjust': 'auto !important',
+}
+
 function themeRules(text: string, bg: string, link: string): Record<string, Record<string, string>> {
   return {
     body: {
       color: `${text} !important`,
       background: `${bg} !important`,
+      ...TEXT_SIZE_ADJUST,
     },
     [TEXT_SELECTORS]: {
       color: `${text} !important`,
       'background-color': 'transparent !important',
       'background-image': 'none !important',
       'line-height': `${LINE_HEIGHT} !important`,
+      ...TEXT_SIZE_ADJUST,
     },
     a: {
       color: `${link} !important`,

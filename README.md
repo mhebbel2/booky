@@ -8,7 +8,7 @@ server, no tracking — your books never leave your device.
 ## Features
 
 - Import EPUBs via file picker or drag-and-drop (multi-file supported)
-- Paginated reading with adjustable font size
+- Paginated reading; book text size follows your browser's text-size setting
 - Light/dark theme follows your system setting, everywhere including the book text
 - Table of contents, keyboard navigation (arrow keys, Page Up/Down, Space)
 - Remembers your position and progress in every book
