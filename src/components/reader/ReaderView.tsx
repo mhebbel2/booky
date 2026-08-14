@@ -6,7 +6,6 @@ import { THEMES, getTheme } from '../../lib/themes'
 import { useSystemTheme } from '../../hooks/useSystemTheme'
 import ReaderToolbar from './ReaderToolbar'
 import TocSidebar, { type TocEntry } from './TocSidebar'
-import SettingsPanel from './SettingsPanel'
 import ProgressBar from './ProgressBar'
 
 interface RawTocItem {
@@ -40,7 +39,6 @@ export default function ReaderView() {
   const [toc, setToc] = useState<TocEntry[]>([])
   const [percentage, setPercentage] = useState(0)
   const [tocOpen, setTocOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const viewerRef = useRef<HTMLDivElement>(null)
   const renditionRef = useRef<Rendition | null>(null)
@@ -215,14 +213,7 @@ export default function ReaderView() {
         percentage={percentage}
         theme={theme}
         onBack={() => navigate('/')}
-        onToggleToc={() => {
-          setTocOpen((v) => !v)
-          setSettingsOpen(false)
-        }}
-        onToggleSettings={() => {
-          setSettingsOpen((v) => !v)
-          setTocOpen(false)
-        }}
+        onToggleToc={() => setTocOpen((v) => !v)}
       />
 
       <div className="relative min-h-0 flex-1">
@@ -248,7 +239,6 @@ export default function ReaderView() {
           onClose={() => setTocOpen(false)}
           onSelect={goTo}
         />
-        <SettingsPanel open={settingsOpen} theme={theme} onClose={() => setSettingsOpen(false)} />
       </div>
 
       <ProgressBar percentage={percentage} theme={theme} />

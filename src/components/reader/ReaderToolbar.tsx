@@ -1,4 +1,5 @@
-import { ChevronLeft, List, SlidersHorizontal } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ChevronLeft, List, Maximize, Minimize } from 'lucide-react'
 import type { ReaderTheme } from '../../lib/themes'
 
 interface Props {
@@ -8,7 +9,6 @@ interface Props {
   theme: ReaderTheme
   onBack: () => void
   onToggleToc: () => void
-  onToggleSettings: () => void
 }
 
 export default function ReaderToolbar({
@@ -18,8 +18,24 @@ export default function ReaderToolbar({
   theme,
   onBack,
   onToggleToc,
-  onToggleSettings,
 }: Props) {
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  // Keep the button state in sync even when the user exits via Esc/F11.
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen()
+    } else {
+      void document.documentElement.requestFullscreen()
+    }
+  }
+
   return (
     <header
       className="flex items-center gap-1 border-b px-2 py-2 sm:px-4"
@@ -52,11 +68,11 @@ export default function ReaderToolbar({
         <List size={20} />
       </button>
       <button
-        onClick={onToggleSettings}
-        aria-label="Reading settings"
+        onClick={toggleFullscreen}
+        aria-label={isFullscreen ? 'Exit full screen' : 'Enter full screen'}
         className="rounded-lg p-2 transition hover:opacity-70"
       >
-        <SlidersHorizontal size={20} />
+        {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
       </button>
     </header>
   )
