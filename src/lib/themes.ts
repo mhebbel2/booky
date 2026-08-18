@@ -37,7 +37,7 @@ const TEXT_SIZE_ADJUST: Record<string, string> = {
   'text-size-adjust': 'auto !important',
 }
 
-function themeRules(text: string, bg: string, link: string): Record<string, Record<string, string>> {
+function themeRules(text: string, bg: string): Record<string, Record<string, string>> {
   return {
     body: {
       color: `${text} !important`,
@@ -52,7 +52,9 @@ function themeRules(text: string, bg: string, link: string): Record<string, Reco
       ...TEXT_SIZE_ADJUST,
     },
     a: {
-      color: `${link} !important`,
+      // Links look like body text; the browser's default underline is
+      // enough to tell them apart.
+      color: `${text} !important`,
     },
   }
 }
@@ -61,12 +63,12 @@ export const THEMES: ReaderTheme[] = [
   {
     id: 'light',
     chrome: { bg: '#fafaf9', text: '#1c1917', border: '#e7e5e4', subtle: '#78716c' },
-    rules: themeRules('#1c1917', '#fafaf9', '#b45309'),
+    rules: themeRules('#1c1917', '#fafaf9'),
   },
   {
     id: 'dark',
     chrome: { bg: '#1c1917', text: '#e7e5e4', border: '#44403c', subtle: '#a8a29e' },
-    rules: themeRules('#e7e5e4', '#1c1917', '#f59e0b'),
+    rules: themeRules('#e7e5e4', '#1c1917'),
   },
 ]
 
