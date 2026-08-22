@@ -12,11 +12,13 @@ interface Props {
   toc: TocEntry[]
   open: boolean
   theme: ReaderTheme
+  /** Spine href of the page currently being read */
+  currentHref: string | null
   onClose: () => void
   onSelect: (href: string) => void
 }
 
-export default function TocSidebar({ toc, open, theme, onClose, onSelect }: Props) {
+export default function TocSidebar({ toc, open, theme, currentHref, onClose, onSelect }: Props) {
   return (
     <>
       {open && <div className="absolute inset-0 z-20 bg-black/30" onClick={onClose} />}
@@ -45,16 +47,22 @@ export default function TocSidebar({ toc, open, theme, onClose, onSelect }: Prop
               No table of contents.
             </p>
           )}
-          {toc.map((item) => (
-            <button
-              key={`${item.id}:${item.href}`}
-              onClick={() => onSelect(item.href)}
-              className="block w-full truncate py-2 pr-4 text-left text-sm transition hover:opacity-70"
-              style={{ paddingLeft: `${1 + item.depth * 1.25}rem` }}
-            >
-              {item.label || 'Untitled'}
-            </button>
-          ))}
+          {toc.map((item) => {
+            // TOC hrefs may carry a #fragment; the current href never does.
+            const isCurrent = item.href.split('#')[0] === currentHref
+            return (
+              <button
+                key={`${item.id}:${item.href}`}
+                onClick={() => onSelect(item.href)}
+                className={`block w-full truncate py-2 pr-4 text-left text-sm transition hover:opacity-70 ${
+                  isCurrent ? 'font-semibold text-amber-600' : ''
+                }`}
+                style={{ paddingLeft: `${1 + item.depth * 1.25}rem` }}
+              >
+                {item.label || 'Untitled'}
+              </button>
+            )
+          })}
         </nav>
       </aside>
     </>

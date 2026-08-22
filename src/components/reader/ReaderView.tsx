@@ -38,6 +38,7 @@ export default function ReaderView() {
   const [toc, setToc] = useState<TocEntry[]>([])
   const [percentage, setPercentage] = useState(0)
   const [tocOpen, setTocOpen] = useState(false)
+  const [currentHref, setCurrentHref] = useState<string | null>(null)
 
   const viewerRef = useRef<HTMLDivElement>(null)
   const renditionRef = useRef<Rendition | null>(null)
@@ -140,9 +141,10 @@ export default function ReaderView() {
       await db.progress.put({ bookId: record.id, cfi, percentage: pct, updatedAt: Date.now() })
     }
 
-    const onRelocated = (location: { start: { cfi: string } }) => {
+    const onRelocated = (location: { start: { cfi: string; href: string } }) => {
       const cfi = location.start.cfi
       cfiRef.current = cfi
+      setCurrentHref(location.start.href)
       window.clearTimeout(saveTimer.current)
       saveTimer.current = window.setTimeout(() => void savePosition(cfi), 250)
     }
@@ -235,6 +237,7 @@ export default function ReaderView() {
           toc={toc}
           open={tocOpen}
           theme={theme}
+          currentHref={currentHref}
           onClose={() => setTocOpen(false)}
           onSelect={goTo}
         />
