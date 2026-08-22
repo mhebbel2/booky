@@ -6,7 +6,6 @@ import { THEMES, getTheme } from '../../lib/themes'
 import { useSystemTheme } from '../../hooks/useSystemTheme'
 import ReaderToolbar from './ReaderToolbar'
 import TocSidebar, { type TocEntry } from './TocSidebar'
-import ProgressBar from './ProgressBar'
 
 interface RawTocItem {
   id?: string
@@ -160,8 +159,8 @@ export default function ReaderView() {
         if (cancelled) return
         setToc(flattenToc(nav.toc as unknown as RawTocItem[]))
 
-        // Generate locations in the background to power the progress bar,
-        // then re-save the position with an accurate percentage.
+        // Generate locations in the background to power the percentage
+        // display, then re-save the position with an accurate percentage.
         await book.locations.generate(1000)
         if (!cancelled && cfiRef.current) {
           await savePosition(cfiRef.current)
@@ -240,8 +239,6 @@ export default function ReaderView() {
           onSelect={goTo}
         />
       </div>
-
-      <ProgressBar percentage={percentage} theme={theme} />
     </div>
   )
 }
