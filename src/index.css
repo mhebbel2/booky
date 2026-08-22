@@ -6,4 +6,13 @@ html,
 body,
 #root {
   height: 100%;
+  /* Track the actual visible height so the page never becomes scrollable;
+     a scrollable page makes mobile browsers auto-hide their toolbars. */
+  height: 100dvh;
+}
+
+html,
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
 }

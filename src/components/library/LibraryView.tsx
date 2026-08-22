@@ -29,7 +29,7 @@ export default function LibraryView() {
 
   return (
     <div
-      className="min-h-full bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100"
+      className="h-full overflow-y-auto bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100"
       onDragOver={(e) => {
         e.preventDefault()
         setDragging(true)
