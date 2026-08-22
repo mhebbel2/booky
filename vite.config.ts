@@ -19,7 +19,7 @@ export default defineConfig(({ command }) => {
           description: 'A local-first EPUB reader that works fully offline',
           theme_color: '#1c1917',
           background_color: '#fafaf9',
-          display: 'standalone',
+          display: 'browser',
           start_url: base,
           scope: base,
           icons: [
