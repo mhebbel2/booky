@@ -20,16 +20,12 @@ export default function ReaderMenu({
   onBack,
   onToggleToc,
 }: Props) {
+  if (!open) return null
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex justify-center px-3 pt-3">
+    <div className="absolute inset-x-0 top-0 z-30 flex justify-center px-3 pt-3">
       <div
         role="dialog"
-        aria-hidden={!open}
-        className={`flex w-full max-w-2xl items-center gap-1 rounded-xl border px-2 py-1.5 shadow-xl backdrop-blur-md transition-all duration-200 ${
-          open
-            ? 'translate-y-0 opacity-100'
-            : '-translate-y-2 opacity-0 pointer-events-none'
-        }`}
+        className="flex w-full max-w-2xl animate-menu-in items-center gap-1 rounded-xl border px-2 py-1.5 shadow-xl backdrop-blur-md"
         style={{ background: theme.chrome.bg, borderColor: theme.chrome.border }}
       >
         <button
