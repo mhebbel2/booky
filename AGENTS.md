@@ -37,7 +37,7 @@ src/
     library/            library view: import, list, open book
     reader/
       ReaderView.tsx    epub.js viewer + overlay next/prev page buttons
-      ReaderToolbar.tsx top chrome inside the reader
+      ReaderMenu.tsx    floating popup with back/title/%/TOC, toggled by center tap
       TocSidebar.tsx    table-of-contents drawer
   hooks/                React hooks (epub loading, theme, etc.)
   lib/                  epub helpers, file utilities

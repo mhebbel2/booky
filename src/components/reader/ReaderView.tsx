@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ePub, { type Rendition } from 'epubjs'
 import { db, type Book } from '../../lib/db'
 import { THEMES, getTheme } from '../../lib/themes'
 import { useSystemTheme } from '../../hooks/useSystemTheme'
-import ReaderToolbar from './ReaderToolbar'
+import ReaderMenu from './ReaderMenu'
 import TocSidebar, { type TocEntry } from './TocSidebar'
 
 interface RawTocItem {
@@ -38,12 +38,14 @@ export default function ReaderView() {
   const [toc, setToc] = useState<TocEntry[]>([])
   const [percentage, setPercentage] = useState(0)
   const [tocOpen, setTocOpen] = useState(false)
+  const [chromeOpen, setChromeOpen] = useState(false)
   const [currentHref, setCurrentHref] = useState<string | null>(null)
 
   const viewerRef = useRef<HTMLDivElement>(null)
   const renditionRef = useRef<Rendition | null>(null)
   const cfiRef = useRef<string | null>(null)
   const saveTimer = useRef<number | undefined>(undefined)
+  const tapStart = useRef<{ x: number; y: number } | null>(null)
   // Lets the rendition-creation effect read the current theme without
   // depending on it (theme changes are applied live, without recreation).
   const themeIdRef = useRef(themeId)
@@ -69,6 +71,32 @@ export default function ReaderView() {
   const prev = useCallback(() => {
     void renditionRef.current?.prev()
   }, [])
+
+  const goPrev = useCallback(() => {
+    setChromeOpen(false)
+    prev()
+  }, [prev])
+  const goNext = useCallback(() => {
+    setChromeOpen(false)
+    next()
+  }, [next])
+
+  const onCenterPointerDown = useCallback((e: ReactPointerEvent) => {
+    tapStart.current = { x: e.clientX, y: e.clientY }
+  }, [])
+  const onCenterPointerUp = useCallback(
+    (e: ReactPointerEvent) => {
+      const start = tapStart.current
+      tapStart.current = null
+      if (!start) return
+      // Treat as a tap only if the pointer barely moved; longer drags are
+      // almost certainly text selection within the iframe.
+      if (Math.hypot(e.clientX - start.x, e.clientY - start.y) < 8) {
+        setChromeOpen((v) => !v)
+      }
+    },
+    [],
+  )
 
   // Keyboard navigation (window level; iframe keys are hooked separately).
   useEffect(() => {
@@ -208,29 +236,50 @@ export default function ReaderView() {
       className="flex h-full flex-col"
       style={{ background: theme.chrome.bg, color: theme.chrome.text }}
     >
-      <ReaderToolbar
-        title={record.title}
-        author={record.author}
-        percentage={percentage}
-        theme={theme}
-        onBack={() => navigate('/')}
-        onToggleToc={() => setTocOpen((v) => !v)}
-      />
-
       <div className="relative min-h-0 flex-1">
         <div className="absolute inset-0 px-2 py-2 sm:px-6 sm:py-4">
           <div ref={viewerRef} className="h-full w-full" />
         </div>
 
+        {chromeOpen && (
+          <div
+            aria-hidden
+            onClick={() => setChromeOpen(false)}
+            className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px]"
+          />
+        )}
+
+        <div
+          aria-label="Toggle reader menu"
+          role="button"
+          onPointerDown={onCenterPointerDown}
+          onPointerUp={onCenterPointerUp}
+          onPointerCancel={() => (tapStart.current = null)}
+          className="absolute inset-y-0 left-1/4 right-1/4 z-10"
+        />
+
         <button
           aria-label="Previous page"
-          onClick={prev}
-          className="absolute inset-y-0 left-0 z-10 w-[25%]"
+          onClick={goPrev}
+          className="absolute inset-y-0 left-0 z-20 w-[25%]"
         />
         <button
           aria-label="Next page"
-          onClick={next}
-          className="absolute inset-y-0 right-0 z-10 w-[25%]"
+          onClick={goNext}
+          className="absolute inset-y-0 right-0 z-20 w-[25%]"
+        />
+
+        <ReaderMenu
+          open={chromeOpen}
+          title={record.title}
+          author={record.author}
+          percentage={percentage}
+          theme={theme}
+          onBack={() => navigate('/')}
+          onToggleToc={() => {
+            setChromeOpen(false)
+            setTocOpen(true)
+          }}
         />
 
         <TocSidebar
