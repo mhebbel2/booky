@@ -75,3 +75,38 @@ export const THEMES: ReaderTheme[] = [
 export function getTheme(id: string): ReaderTheme {
   return THEMES.find((t) => t.id === id) ?? THEMES[0]
 }
+
+const COLOR_PROPS = ['color', 'background', 'background-color', 'background-image']
+
+function stripRuleColors(rules: CSSRuleList) {
+  for (let i = 0; i < rules.length; i++) {
+    const rule = rules[i]
+    if (rule.type === CSSRule.STYLE_RULE) {
+      const style = (rule as CSSStyleRule).style
+      for (const prop of COLOR_PROPS) style.removeProperty(prop)
+    } else if ('cssRules' in rule) {
+      stripRuleColors((rule as CSSGroupingRule).cssRules)
+    }
+  }
+}
+
+export function stripPublisherColors(doc: Document) {
+  for (const sheet of Array.from(doc.styleSheets)) {
+    const owner = sheet.ownerNode as HTMLElement | null
+    if (owner?.id?.startsWith('epubjs-inserted-css-')) continue
+    try {
+      if (sheet.cssRules) stripRuleColors(sheet.cssRules)
+    } catch {
+      continue
+    }
+  }
+  for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[style]'))) {
+    for (const prop of COLOR_PROPS) el.style.removeProperty(prop)
+  }
+  for (const el of Array.from(doc.querySelectorAll('font[color]'))) {
+    el.removeAttribute('color')
+  }
+  for (const el of Array.from(doc.querySelectorAll('[bgcolor]'))) {
+    el.removeAttribute('bgcolor')
+  }
+}

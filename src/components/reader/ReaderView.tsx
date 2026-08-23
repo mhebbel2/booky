@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPoi
 import { useNavigate, useParams } from 'react-router-dom'
 import ePub, { type Rendition } from 'epubjs'
 import { db, type Book } from '../../lib/db'
-import { THEMES, getTheme } from '../../lib/themes'
+import { THEMES, getTheme, stripPublisherColors } from '../../lib/themes'
 import { useSystemTheme } from '../../hooks/useSystemTheme'
 import ReaderMenu from './ReaderMenu'
 import TocSidebar, { type TocEntry } from './TocSidebar'
@@ -131,6 +131,10 @@ export default function ReaderView() {
       rendition.themes.register(t.id, t.rules)
     }
     rendition.themes.select(themeIdRef.current)
+
+    rendition.hooks.content.register((contents: { document?: Document }) => {
+      if (contents.document) stripPublisherColors(contents.document)
+    })
 
     // epub.js puts the book in an iframe; forward its key events so arrow
     // keys keep working after the user clicks into the text.
