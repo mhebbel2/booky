@@ -225,12 +225,12 @@ export default function ReaderView() {
         <button
           aria-label="Previous page"
           onClick={prev}
-          className="absolute inset-y-0 left-0 z-10 w-[15%]"
+          className="absolute inset-y-0 left-0 z-10 w-[25%]"
         />
         <button
           aria-label="Next page"
           onClick={next}
-          className="absolute inset-y-0 right-0 z-10 w-[15%]"
+          className="absolute inset-y-0 right-0 z-10 w-[25%]"
         />
 
         <TocSidebar
