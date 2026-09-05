@@ -186,7 +186,7 @@ export default function ReaderView() {
       try {
         const saved = await db.progress.get(record.id)
         if (saved) setPercentage(saved.percentage)
-        await rendition.display(cfiRef.current ?? saved?.cfi ?? undefined)
+        await rendition.display(saved?.cfi ?? undefined)
         if (cancelled) return
 
         const nav = await book.loaded.navigation
