@@ -67,8 +67,8 @@ export const THEMES: ReaderTheme[] = [
   },
   {
     id: 'dark',
-    chrome: { bg: '#1c1917', text: '#e7e5e4', border: '#44403c', subtle: '#a8a29e' },
-    rules: themeRules('#e7e5e4', '#1c1917'),
+    chrome: { bg: '#000000', text: '#e7e5e4', border: '#000000', subtle: '#a8a29e' },
+    rules: themeRules('#e7e5e4', '#000000'),
   },
 ]
 
